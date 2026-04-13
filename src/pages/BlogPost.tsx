@@ -143,6 +143,12 @@ export default function BlogPost() {
             <CommentsSection postId={post.id} />
           </div>
 
+          <RelatedPosts
+            currentPostId={post.id}
+            categoryId={post.category_id}
+            tags={post.tags}
+          />
+
           <div className="mt-12">
             <NewsletterForm />
           </div>
