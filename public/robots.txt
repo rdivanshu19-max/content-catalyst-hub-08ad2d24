@@ -4,4 +4,4 @@ Disallow: /admin
 Disallow: /auth
 Disallow: /reset-password
 
-Sitemap: https://contentcatalyst.lovable.app/sitemap.xml
+Sitemap: https://bjqmhkmjzztchlbznwum.supabase.co/functions/v1/sitemap
