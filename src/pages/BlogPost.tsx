@@ -7,6 +7,7 @@ import NewsletterForm from "@/components/NewsletterForm";
 import SEOHead from "@/components/SEOHead";
 import SocialShareButtons from "@/components/SocialShareButtons";
 import CommentsSection from "@/components/CommentsSection";
+import RelatedPosts from "@/components/RelatedPosts";
 import { format } from "date-fns";
 import { ArrowLeft, Clock, Calendar } from "lucide-react";
 
