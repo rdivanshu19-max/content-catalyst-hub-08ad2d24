@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -29,8 +30,8 @@ export default function Analytics() {
 
   // Track page views on route change
   useEffect(() => {
-    if (GA_ID && window.gtag) {
-      window.gtag("config", GA_ID, { page_path: location.pathname });
+    if (GA_ID && (window as any).gtag) {
+      (window as any).gtag("config", GA_ID, { page_path: location.pathname });
     }
   }, [location.pathname]);
 
