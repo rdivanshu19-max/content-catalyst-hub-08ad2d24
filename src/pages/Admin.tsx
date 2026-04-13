@@ -10,10 +10,10 @@ import { useTheme } from "@/hooks/useTheme";
 import {
   FileText, PlusCircle, Users, BarChart3, Settings,
   LogOut, Home, Trash2, Edit, Eye, Archive, Sun, Moon,
-  Mail, Tag, ChevronRight,
+  Mail, Tag, ChevronRight, MessageSquare, Upload, Check, X,
 } from "lucide-react";
 
-type AdminTab = "dashboard" | "posts" | "new-post" | "edit-post" | "categories" | "subscribers" | "settings";
+type AdminTab = "dashboard" | "posts" | "new-post" | "edit-post" | "categories" | "subscribers" | "comments" | "settings";
 
 export default function Admin() {
   const { user, isAdmin, loading: authLoading, signOut } = useAuth();
@@ -63,6 +63,7 @@ export default function Admin() {
     { id: "new-post" as AdminTab, icon: PlusCircle, label: "New Post" },
     { id: "categories" as AdminTab, icon: Tag, label: "Categories" },
     { id: "subscribers" as AdminTab, icon: Mail, label: "Subscribers" },
+    { id: "comments" as AdminTab, icon: MessageSquare, label: "Comments" },
     { id: "settings" as AdminTab, icon: Settings, label: "Settings" },
   ];
 
@@ -113,6 +114,7 @@ export default function Admin() {
           {tab === "edit-post" && editPostId && <PostEditorView postId={editPostId} categories={categories} onSaved={() => { loadData(); setTab("posts"); }} />}
           {tab === "categories" && <CategoriesView categories={categories} onRefresh={loadData} />}
           {tab === "subscribers" && <SubscribersView subscribers={subscribers} onRefresh={loadData} />}
+          {tab === "comments" && <CommentsManageView />}
           {tab === "settings" && <SettingsView />}
         </main>
       </div>
