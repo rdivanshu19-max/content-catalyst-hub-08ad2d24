@@ -5,6 +5,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import NewsletterForm from "@/components/NewsletterForm";
 import SEOHead from "@/components/SEOHead";
+import SocialShareButtons from "@/components/SocialShareButtons";
+import CommentsSection from "@/components/CommentsSection";
 import { format } from "date-fns";
 import { ArrowLeft, Clock, Calendar } from "lucide-react";
 
@@ -59,6 +61,8 @@ export default function BlogPost() {
     );
   }
 
+  const postUrl = typeof window !== "undefined" ? window.location.href : "";
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -94,7 +98,7 @@ export default function BlogPost() {
 
           <h1 className="font-heading text-3xl font-extrabold leading-tight md:text-5xl">{post.title}</h1>
 
-          <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
+          <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
             <span className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
               {format(new Date(post.created_at), "MMMM d, yyyy")}
@@ -106,6 +110,10 @@ export default function BlogPost() {
               </span>
             )}
             <span>By GCR</span>
+          </div>
+
+          <div className="mt-4">
+            <SocialShareButtons url={postUrl} title={post.title} />
           </div>
 
           {post.cover_image && (
@@ -125,6 +133,14 @@ export default function BlogPost() {
               ))}
             </div>
           )}
+
+          <div className="mt-8">
+            <SocialShareButtons url={postUrl} title={post.title} />
+          </div>
+
+          <div className="mt-12 border-t border-border pt-8">
+            <CommentsSection postId={post.id} />
+          </div>
 
           <div className="mt-12">
             <NewsletterForm />

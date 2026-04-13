@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
+import Analytics from "@/components/Analytics";
 import Index from "./pages/Index";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
@@ -24,6 +25,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <Analytics />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/blog" element={<Blog />} />
