@@ -7,6 +7,7 @@ import NewsletterForm from "@/components/NewsletterForm";
 import SEOHead from "@/components/SEOHead";
 import SocialShareButtons from "@/components/SocialShareButtons";
 import CommentsSection from "@/components/CommentsSection";
+import RelatedPosts from "@/components/RelatedPosts";
 import { format } from "date-fns";
 import { ArrowLeft, Clock, Calendar } from "lucide-react";
 
@@ -141,6 +142,12 @@ export default function BlogPost() {
           <div className="mt-12 border-t border-border pt-8">
             <CommentsSection postId={post.id} />
           </div>
+
+          <RelatedPosts
+            currentPostId={post.id}
+            categoryId={post.category_id}
+            tags={post.tags}
+          />
 
           <div className="mt-12">
             <NewsletterForm />
