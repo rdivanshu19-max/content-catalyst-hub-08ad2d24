@@ -329,8 +329,36 @@ function PostEditorView({ postId, categories, onSaved }: { postId?: string; cate
             />
           </div>
           <div>
-            <label className="text-sm font-medium">Cover Image URL</label>
-            <Input value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="https://..." />
+            <label className="text-sm font-medium">Cover Image</label>
+            <div className="space-y-2">
+              <Input value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="https://... or upload below" />
+              <label className="flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-border p-3 text-sm text-muted-foreground hover:bg-muted">
+                <Upload className="h-4 w-4" />
+                <span>Upload cover image</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const ext = file.name.split(".").pop();
+                    const path = `covers/${Date.now()}.${ext}`;
+                    const { error } = await supabase.storage.from("blog-media").upload(path, file);
+                    if (error) {
+                      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+                      return;
+                    }
+                    const { data: urlData } = supabase.storage.from("blog-media").getPublicUrl(path);
+                    setCoverImage(urlData.publicUrl);
+                    toast({ title: "Cover image uploaded!" });
+                  }}
+                />
+              </label>
+              {coverImage && (
+                <img src={coverImage} alt="Cover preview" className="h-32 w-full rounded-md object-cover" />
+              )}
+            </div>
           </div>
           <div>
             <label className="text-sm font-medium">Category</label>
