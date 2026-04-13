@@ -10,10 +10,10 @@ import { useTheme } from "@/hooks/useTheme";
 import {
   FileText, PlusCircle, Users, BarChart3, Settings,
   LogOut, Home, Trash2, Edit, Eye, Archive, Sun, Moon,
-  Mail, Tag, ChevronRight,
+  Mail, Tag, ChevronRight, MessageSquare, Upload, Check, X,
 } from "lucide-react";
 
-type AdminTab = "dashboard" | "posts" | "new-post" | "edit-post" | "categories" | "subscribers" | "settings";
+type AdminTab = "dashboard" | "posts" | "new-post" | "edit-post" | "categories" | "subscribers" | "comments" | "settings";
 
 export default function Admin() {
   const { user, isAdmin, loading: authLoading, signOut } = useAuth();
@@ -63,6 +63,7 @@ export default function Admin() {
     { id: "new-post" as AdminTab, icon: PlusCircle, label: "New Post" },
     { id: "categories" as AdminTab, icon: Tag, label: "Categories" },
     { id: "subscribers" as AdminTab, icon: Mail, label: "Subscribers" },
+    { id: "comments" as AdminTab, icon: MessageSquare, label: "Comments" },
     { id: "settings" as AdminTab, icon: Settings, label: "Settings" },
   ];
 
@@ -113,6 +114,7 @@ export default function Admin() {
           {tab === "edit-post" && editPostId && <PostEditorView postId={editPostId} categories={categories} onSaved={() => { loadData(); setTab("posts"); }} />}
           {tab === "categories" && <CategoriesView categories={categories} onRefresh={loadData} />}
           {tab === "subscribers" && <SubscribersView subscribers={subscribers} onRefresh={loadData} />}
+          {tab === "comments" && <CommentsManageView />}
           {tab === "settings" && <SettingsView />}
         </main>
       </div>
@@ -327,8 +329,36 @@ function PostEditorView({ postId, categories, onSaved }: { postId?: string; cate
             />
           </div>
           <div>
-            <label className="text-sm font-medium">Cover Image URL</label>
-            <Input value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="https://..." />
+            <label className="text-sm font-medium">Cover Image</label>
+            <div className="space-y-2">
+              <Input value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="https://... or upload below" />
+              <label className="flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-border p-3 text-sm text-muted-foreground hover:bg-muted">
+                <Upload className="h-4 w-4" />
+                <span>Upload cover image</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const ext = file.name.split(".").pop();
+                    const path = `covers/${Date.now()}.${ext}`;
+                    const { error } = await supabase.storage.from("blog-media").upload(path, file);
+                    if (error) {
+                      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+                      return;
+                    }
+                    const { data: urlData } = supabase.storage.from("blog-media").getPublicUrl(path);
+                    setCoverImage(urlData.publicUrl);
+                    toast({ title: "Cover image uploaded!" });
+                  }}
+                />
+              </label>
+              {coverImage && (
+                <img src={coverImage} alt="Cover preview" className="h-32 w-full rounded-md object-cover" />
+              )}
+            </div>
           </div>
           <div>
             <label className="text-sm font-medium">Category</label>
@@ -476,6 +506,79 @@ function SubscribersView({ subscribers, onRefresh }: { subscribers: any[]; onRef
                 <Button variant="ghost" size="icon" onClick={() => deleteSubscriber(s.id)}>
                   <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CommentsManageView() {
+  const [comments, setComments] = useState<any[]>([]);
+
+  const loadComments = async () => {
+    const { data } = await supabase.from("post_comments").select("*, posts:post_id(title, slug)").order("created_at", { ascending: false });
+    setComments(data || []);
+  };
+
+  useEffect(() => { loadComments(); }, []);
+
+  const updateStatus = async (id: string, status: string) => {
+    await supabase.from("post_comments").update({ status }).eq("id", id);
+    toast({ title: `Comment ${status}` });
+    loadComments();
+  };
+
+  const deleteComment = async (id: string) => {
+    if (!confirm("Delete this comment?")) return;
+    await supabase.from("post_comments").delete().eq("id", id);
+    toast({ title: "Comment deleted" });
+    loadComments();
+  };
+
+  return (
+    <div>
+      <h1 className="font-heading text-2xl font-bold">Comments</h1>
+      <p className="mt-1 text-sm text-muted-foreground">{comments.length} total comments</p>
+      <div className="mt-6 space-y-3">
+        {comments.length === 0 ? (
+          <p className="text-muted-foreground">No comments yet.</p>
+        ) : (
+          comments.map((c) => (
+            <div key={c.id} className="rounded-lg border border-border bg-card p-4">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{c.author_name}</span>
+                    {c.author_email && <span className="text-xs text-muted-foreground">{c.author_email}</span>}
+                    <span className={`rounded-full px-2 py-0.5 text-xs ${
+                      c.status === "approved" ? "bg-green-500/10 text-green-600" :
+                      c.status === "rejected" ? "bg-red-500/10 text-red-600" :
+                      "bg-yellow-500/10 text-yellow-600"
+                    }`}>{c.status}</span>
+                  </div>
+                  <p className="mt-1 text-sm text-muted-foreground">{c.content}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    on: {c.posts?.title || "Unknown post"} · {new Date(c.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+                <div className="flex gap-1">
+                  {c.status !== "approved" && (
+                    <Button variant="ghost" size="icon" onClick={() => updateStatus(c.id, "approved")} title="Approve">
+                      <Check className="h-4 w-4 text-green-600" />
+                    </Button>
+                  )}
+                  {c.status !== "rejected" && (
+                    <Button variant="ghost" size="icon" onClick={() => updateStatus(c.id, "rejected")} title="Reject">
+                      <X className="h-4 w-4 text-red-600" />
+                    </Button>
+                  )}
+                  <Button variant="ghost" size="icon" onClick={() => deleteComment(c.id)}>
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
               </div>
             </div>
           ))
