@@ -515,6 +515,79 @@ function SubscribersView({ subscribers, onRefresh }: { subscribers: any[]; onRef
   );
 }
 
+function CommentsManageView() {
+  const [comments, setComments] = useState<any[]>([]);
+
+  const loadComments = async () => {
+    const { data } = await supabase.from("post_comments").select("*, posts:post_id(title, slug)").order("created_at", { ascending: false });
+    setComments(data || []);
+  };
+
+  useEffect(() => { loadComments(); }, []);
+
+  const updateStatus = async (id: string, status: string) => {
+    await supabase.from("post_comments").update({ status }).eq("id", id);
+    toast({ title: `Comment ${status}` });
+    loadComments();
+  };
+
+  const deleteComment = async (id: string) => {
+    if (!confirm("Delete this comment?")) return;
+    await supabase.from("post_comments").delete().eq("id", id);
+    toast({ title: "Comment deleted" });
+    loadComments();
+  };
+
+  return (
+    <div>
+      <h1 className="font-heading text-2xl font-bold">Comments</h1>
+      <p className="mt-1 text-sm text-muted-foreground">{comments.length} total comments</p>
+      <div className="mt-6 space-y-3">
+        {comments.length === 0 ? (
+          <p className="text-muted-foreground">No comments yet.</p>
+        ) : (
+          comments.map((c) => (
+            <div key={c.id} className="rounded-lg border border-border bg-card p-4">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{c.author_name}</span>
+                    {c.author_email && <span className="text-xs text-muted-foreground">{c.author_email}</span>}
+                    <span className={`rounded-full px-2 py-0.5 text-xs ${
+                      c.status === "approved" ? "bg-green-500/10 text-green-600" :
+                      c.status === "rejected" ? "bg-red-500/10 text-red-600" :
+                      "bg-yellow-500/10 text-yellow-600"
+                    }`}>{c.status}</span>
+                  </div>
+                  <p className="mt-1 text-sm text-muted-foreground">{c.content}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    on: {c.posts?.title || "Unknown post"} · {new Date(c.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+                <div className="flex gap-1">
+                  {c.status !== "approved" && (
+                    <Button variant="ghost" size="icon" onClick={() => updateStatus(c.id, "approved")} title="Approve">
+                      <Check className="h-4 w-4 text-green-600" />
+                    </Button>
+                  )}
+                  {c.status !== "rejected" && (
+                    <Button variant="ghost" size="icon" onClick={() => updateStatus(c.id, "rejected")} title="Reject">
+                      <X className="h-4 w-4 text-red-600" />
+                    </Button>
+                  )}
+                  <Button variant="ghost" size="icon" onClick={() => deleteComment(c.id)}>
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
 function SettingsView() {
   return (
     <div>
