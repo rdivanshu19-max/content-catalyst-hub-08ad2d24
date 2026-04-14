@@ -3,7 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-const SITE_URL = "https://contentcatalyst.lovable.app";
+const SITE_URL = "https://contentcatalysthub.vercel.app";
 
 Deno.serve(async () => {
   const supabase = createClient(supabaseUrl, supabaseKey);
