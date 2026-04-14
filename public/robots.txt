@@ -4,4 +4,4 @@ Disallow: /admin
 Disallow: /auth
 Disallow: /reset-password
 
-Sitemap: https://bjqmhkmjzztchlbznwum.supabase.co/functions/v1/sitemap
+Sitemap: https://contentcatalysthub.vercel.app/sitemap.xml
