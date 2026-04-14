@@ -2,5 +2,13 @@
   "rewrites": [
     { "source": "/sitemap.xml", "destination": "https://bjqmhkmjzztchlbznwum.supabase.co/functions/v1/sitemap" },
     { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/sitemap.xml",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=3600" }
+      ]
+    }
   ]
 }
