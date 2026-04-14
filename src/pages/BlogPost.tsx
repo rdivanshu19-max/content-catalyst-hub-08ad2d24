@@ -10,6 +10,7 @@ import CommentsSection from "@/components/CommentsSection";
 import RelatedPosts from "@/components/RelatedPosts";
 import { format } from "date-fns";
 import { ArrowLeft, Clock, Calendar } from "lucide-react";
+import ReadingProgressBar from "@/components/ReadingProgressBar";
 
 export default function BlogPost() {
   const { slug } = useParams();
@@ -84,6 +85,7 @@ export default function BlogPost() {
         ogType="article"
         jsonLd={jsonLd}
       />
+      <ReadingProgressBar />
       <Header />
       <article className="container mx-auto px-4 py-12">
         <div className="mx-auto max-w-3xl">

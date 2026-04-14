@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import logoImg from "@/assets/logo.jpg";
 
 export default function Header() {
   const { user, isAdmin, signOut } = useAuth();
@@ -26,9 +27,12 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link to="/" className="font-heading text-xl font-bold tracking-tight">
-          <span className="text-gradient">CONTENT</span>{" "}
-          <span className="text-foreground">CATALYST</span>
+        <Link to="/" className="flex items-center gap-2 font-heading text-xl font-bold tracking-tight">
+          <img src={logoImg} alt="Content Catalyst" className="h-8 w-8 rounded-md object-cover" />
+          <span>
+            <span className="text-gradient">CONTENT</span>{" "}
+            <span className="text-foreground">CATALYST</span>
+          </span>
         </Link>
 
         {/* Desktop Nav */}
